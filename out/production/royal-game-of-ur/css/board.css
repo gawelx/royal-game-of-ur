@@ -1,0 +1,15 @@
+.root {
+    -fx-background-image: url("../img/wood.jpg");
+    -fx-background-size: cover, cover;
+}
+
+.board {
+    -fx-background-image: url("../img/board.png");
+    -fx-background-size: 480, 180;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+#message {
+    -fx-text-fill: firebrick;
+}
