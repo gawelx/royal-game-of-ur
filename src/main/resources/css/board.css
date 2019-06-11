@@ -10,6 +10,10 @@
     -fx-background-position: center;
 }
 
-#message {
-    -fx-text-fill: firebrick;
+.message {
+    -fx-fill: firebrick;
+}
+
+.piece, .dice {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 4.0, 0.0, 6.0, 4.0);
 }
