@@ -3,6 +3,22 @@
     -fx-background-size: cover, cover;
 }
 
+.border_down, .border_left, .border_down_and_left {
+    -fx-border-color: #24221c;
+}
+
+.border_down {
+    -fx-border-width: 0px 0px 1px 0px;
+}
+
+.border_left {
+    -fx-border-width: 0px 0px 0px 1px;
+}
+
+.border_down_and_left {
+    -fx-border-width: 0px 0px 1px 1px;
+}
+
 .board {
     -fx-background-image: url("../img/board.png");
     -fx-background-size: 480, 180;

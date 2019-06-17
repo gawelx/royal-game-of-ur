@@ -3,11 +3,11 @@ package com.kodilla.royal.game.of.ur;
 public class Field {
 
     private final boolean captureAllowed;
-    private final byte column;
-    private final byte row;
+    private final int column;
+    private final int row;
     private Piece piece;
 
-    public Field(final byte column, final byte row, final boolean captureAllowed) {
+    public Field(final int row, final int column, final boolean captureAllowed) {
         this.column = column;
         this.row = row;
         this.captureAllowed = captureAllowed;
@@ -18,12 +18,16 @@ public class Field {
         return captureAllowed;
     }
 
-    public byte getColumn() {
+    public int getColumn() {
         return column;
     }
 
-    public byte getRow() {
+    public int getRow() {
         return row;
+    }
+
+    public Piece getPiece() {
+        return piece;
     }
 
     public boolean canTakePiece(Piece piece) {
@@ -33,18 +37,11 @@ public class Field {
         return !this.piece.isFriendOf(piece) && captureAllowed;
     }
 
-    public Piece setPiece(Piece piece) throws FieldOccupiedException, CaptureNotAllowedException {
-        // this exceptions are only to show that I know how to use them ;)
-        // the ability of setting the piece should be checked with canTakePiece() method before calling this one
-        if (this.piece != null) {
-            if (this.piece.isFriendOf(piece)) {
-                throw new FieldOccupiedException();
-            } else {
-                if (!captureAllowed) {
-                    throw new CaptureNotAllowedException();
-                }
-            }
-        }
+    public boolean canBeCapturedBy(Piece piece) {
+        return this.piece != null && !this.piece.isFriendOf(piece) && captureAllowed;
+    }
+
+    public Piece setPiece(Piece piece) {
         Piece oldPiece = this.piece;
         this.piece = piece;
         return oldPiece;

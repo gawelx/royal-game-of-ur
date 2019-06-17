@@ -1,14 +1,20 @@
 package com.kodilla.royal.game.of.ur;
 
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
+
+import java.util.List;
+
 public class HumanPlayer extends Player {
 
-    public HumanPlayer(final PieceColor color, final Field[] route) {
-        super(BoardController.HUMAN_PLAYER, color, route);
+    public HumanPlayer(final PieceColor color, final List<Field> route, final Board gameBoard) {
+        super(Board.HUMAN_PLAYER, color, route, gameBoard);
     }
 
-    @Override
-    public void makeAMove(byte howFar) {
-        // to implement
+    public void setMouseClickedListener(EventHandler<? super MouseEvent> event) {
+        for (Piece piece : pieces) {
+            piece.setOnMouseClicked(event);
+        }
     }
 
     @Override
