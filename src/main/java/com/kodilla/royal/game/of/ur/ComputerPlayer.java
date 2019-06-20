@@ -1,26 +1,24 @@
 package com.kodilla.royal.game.of.ur;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class ComputerPlayer extends Player {
 
-    public ComputerPlayer(final PieceColor color, final List<Field> route, final Board gameBoard) {
-        super(Board.COMPUTER_PLAYER, color, route, gameBoard);
+    public ComputerPlayer(
+            final Game game,
+            final int routeType,
+            final Field[][] fields
+    ) throws Exception {
+        super(PieceColor.LIGHT, game, routeType, fields);
     }
 
     public Piece chooseBestMove(int howFar) {
-        Comparator<Piece> pieceMoveComparator = new Comparator<Piece>() {
-            @Override
-            public int compare(Piece p1, Piece p2) {
-                return p1.getMovePriority(howFar, getRoute()) - p2.getMovePriority(howFar, getRoute());
-            }
-        };
+        Comparator<Piece> pieceMoveComparator = Comparator.comparingInt(p -> p.getMovePriority(howFar, getRoute()));
         Queue<Piece> moves = new PriorityQueue<>(pieceMoveComparator);
         for (Piece piece : pieces) {
-            if (piece.isInGame()) {
+            if (piece.isInGame() && piece.canMove(howFar, getRoute())) {
                 moves.add(piece);
             }
         }
@@ -32,4 +30,5 @@ public class ComputerPlayer extends Player {
     public String toString() {
         return "Computer Player";
     }
+
 }

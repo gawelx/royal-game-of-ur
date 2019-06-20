@@ -1,22 +1,30 @@
 package com.kodilla.royal.game.of.ur;
 
-import javafx.scene.text.Text;
-
 import java.util.Random;
 
 public class Dice {
 
     private final Random diceRoller;
-    private final Text diceRollResultTxt;
+    private int result;     // Used in tests only
 
-    public Dice(final Text diceRollResultTxt) {
+    public Dice() {
         this.diceRoller = new Random();
-        this.diceRollResultTxt = diceRollResultTxt;
+    }
+
+    /*
+     * Used in tests only
+     */
+    public Dice(int result) {
+        diceRoller = null;
+        this.result = result;
     }
 
     public int roll() {
-        int diceRollResult = diceRoller.nextInt(4) + 1;
-        diceRollResultTxt.setText(Integer.toString(diceRollResult));
-        return diceRollResult;
+        if (diceRoller == null) {
+            return result;      // Used in tests only
+        } else {
+            return diceRoller.nextInt(5);
+        }
     }
+
 }

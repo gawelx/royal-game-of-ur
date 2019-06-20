@@ -46,4 +46,5 @@ public class Field {
         this.piece = piece;
         return oldPiece;
     }
+
 }

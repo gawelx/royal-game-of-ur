@@ -33,3 +33,9 @@
 .piece, .dice {
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 4.0, 0.0, 6.0, 4.0);
 }
+
+.game_over {
+    -fx-text-fill: firebrick;
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+}
