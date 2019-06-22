@@ -4,6 +4,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Piece extends ImageView {
 
@@ -27,7 +28,10 @@ public class Piece extends ImageView {
 
         ClassLoader classLoader = getClass().getClassLoader();
         String fileName = color == PieceColor.DARK ? "pawn_dark.png" : "pawn_light.png";
-        String imageUrl = classLoader.getResource("img/" + fileName).toExternalForm();
+        String imageUrl = Objects.requireNonNull(
+                classLoader.getResource("img/" + fileName),
+                "Access to the file " + fileName + " unsuccessful."
+        ).toExternalForm();
         setImage(new Image(imageUrl));
         getStyleClass().add("piece");
     }
@@ -120,8 +124,8 @@ public class Piece extends ImageView {
         inGame = false;
     }
 
-    public boolean isFriendOf(Piece piece) {
-        return this.color == piece.color;
+    public boolean isNotFriendOf(Piece piece) {
+        return this.color != piece.color;
     }
 
 }

@@ -32,7 +32,7 @@ public abstract class Player {
         return new ArrayList<>(route);
     }
 
-    public boolean hasPiecesInGame() {
+    private boolean hasPiecesInGame() {
         for (Piece piece : pieces) {
             if (piece.isInGame()) {
                 return true;
@@ -126,7 +126,7 @@ public abstract class Player {
         FadeTransition transition = game.getBoardController().createPieceFadeInTransition(piece);
 
         if (!hasPiecesInGame()) {
-            transition.setOnFinished(event -> game.finishGame(this));
+            transition.setOnFinished(event -> game.finishGame());
         } else {
             transition.setOnFinished(event -> game.nextTurn()); // the end of the players turn
         }

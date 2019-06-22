@@ -34,11 +34,11 @@ public class Field {
         if (this.piece == null) {
             return true;
         }
-        return !this.piece.isFriendOf(piece) && captureAllowed;
+        return this.piece.isNotFriendOf(piece) && captureAllowed;
     }
 
     public boolean canBeCapturedBy(Piece piece) {
-        return this.piece != null && !this.piece.isFriendOf(piece) && captureAllowed;
+        return this.piece != null && this.piece.isNotFriendOf(piece) && captureAllowed;
     }
 
     public Piece setPiece(Piece piece) {

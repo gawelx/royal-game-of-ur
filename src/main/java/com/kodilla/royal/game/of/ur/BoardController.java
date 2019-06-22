@@ -8,6 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -20,15 +21,22 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.kodilla.royal.game.of.ur.Game.PIECES_COUNT;
 
 public class BoardController extends GridPane {
 
+    public final static String GREEN_LIGHT = "green";
+    public final static String RED_LIGHT = "red";
+    public final static String YELLOW_LIGHT = "yellow";
+
     private final double DICE_ROLLING_ANIMATION_DURATION = 4000d;
     private final double DICE_ROLLING_ANIMATION_STEP = 100d;
     private final double DICE_ROLLING_ANIMATION_STEP_MODIFIER = 1.1d;
     private final int FADE_TIME = 500;
+
+    private final Game game;
 
     private final ImageView diceImg;
     private final Text diceRollResultTxt;
@@ -41,22 +49,28 @@ public class BoardController extends GridPane {
 
     private final HBox humanPlayerFinishedPiecesPnl;
     private final HBox humanPlayerReadyToGoPiecesPnl;
+    private final ImageView humanPlayerTurnIndicatorImg;
 
     private final HBox computerPlayerFinishedPiecesPnl;
     private final HBox computerPlayerReadyToGoPiecesPnl;
 
     private final Timeline diceRollAnimation;
     private final FadeTransition messageFadeOutTransition;
+    private final ImageView computerPlayerTurnIndicatorImg;
 
-    public BoardController() {
+    public BoardController(final Game game) {
+        this.game = game;
+
         this.humanPlayerFinishedPiecesPnl = new HBox();
         this.humanPlayerReadyToGoPiecesPnl = new HBox();
+        this.humanPlayerTurnIndicatorImg = new ImageView();
 
         this.playPnl = new StackPane();
         this.gameBoardPnl = new AnchorPane();
 
         this.computerPlayerFinishedPiecesPnl = new HBox();
         this.computerPlayerReadyToGoPiecesPnl = new HBox();
+        this.computerPlayerTurnIndicatorImg = new ImageView();
 
         this.diceImg = new ImageView();
         this.diceRollResultTxt = new Text();
@@ -73,7 +87,10 @@ public class BoardController extends GridPane {
         getStyleClass().add("root");
 
         ClassLoader classLoader = getClass().getClassLoader();
-        getStylesheets().add(classLoader.getResource("css/board.css").toExternalForm());
+        getStylesheets().add(Objects.requireNonNull(
+                classLoader.getResource("css/board.css"),
+                "Accessing the CSS file unsuccessful."
+        ).toExternalForm());
 
         add(createTopBar(), 0, 0, 2, 1);
         add(createHumanPlayerPanel(), 0, 1);
@@ -90,24 +107,30 @@ public class BoardController extends GridPane {
     * Initializing the UI
      */
     private Node createTopBar() {
-        HBox topBarPnl = new HBox();
+        HBox topBarPnl = new HBox(1);
         topBarPnl.setMinSize(670d, 40d);
         topBarPnl.setMaxSize(670d, 40d);
+        topBarPnl.setPadding(new Insets(1));
         topBarPnl.getStyleClass().add("border_down");
 
         Button newGameBtn = new Button("N");
-        newGameBtn.setMinSize(40d, 40d);
-        newGameBtn.setMaxSize(40d, 40d);
+        newGameBtn.setMinSize(38d, 38d);
+        newGameBtn.setMaxSize(38d, 38d);
         newGameBtn.setAlignment(Pos.CENTER);
+//        newGameBtn.getStyleClass().add("button");
+        newGameBtn.setTooltip(new Tooltip("New game"));
 
         Label titleLbl = new Label("The Royal Game Of Ur");
         titleLbl.setMinSize(590d, 40d);
         titleLbl.setMaxSize(590d, 40d);
         titleLbl.setAlignment(Pos.CENTER);
+        titleLbl.getStyleClass().add("title");
+
+        titleLbl.setAlignment(Pos.CENTER);
 
         Button helpBtn = new Button("?");
-        helpBtn.setMinSize(40d, 40d);
-        helpBtn.setMaxSize(40d, 40d);
+        helpBtn.setMinSize(38d, 38d);
+        helpBtn.setMaxSize(38d, 38d);
         helpBtn.setAlignment(Pos.CENTER);
 
         topBarPnl.getChildren().addAll(newGameBtn, titleLbl, helpBtn);
@@ -115,55 +138,71 @@ public class BoardController extends GridPane {
     }
 
     private Node createHumanPlayerPanel() {
-        VBox playerPnl = new VBox();
-        Label titleLbl = new Label("Human Player");
+        HBox titlePnl = new HBox();
         HBox piecesPnl = new HBox();
 
-        createPlayerPanel(
-                playerPnl,
+        VBox playerPnl = createPlayerPanel(
+                titlePnl,
                 piecesPnl,
-                titleLbl,
+                "Human player",
                 humanPlayerFinishedPiecesPnl,
-                humanPlayerReadyToGoPiecesPnl
+                humanPlayerReadyToGoPiecesPnl,
+                humanPlayerTurnIndicatorImg
         );
 
-        playerPnl.getChildren().addAll(titleLbl, piecesPnl);
+        playerPnl.getChildren().addAll(titlePnl, piecesPnl);
 
         return playerPnl;
     }
 
     private Node createComputerPlayerPanel() {
-        VBox playerPnl = new VBox();
-        Label titleLbl = new Label("Computer Player");
+        HBox titlePnl = new HBox();
         HBox piecesPnl = new HBox();
 
-        createPlayerPanel(
-                playerPnl,
+        VBox playerPnl = createPlayerPanel(
+                titlePnl,
                 piecesPnl,
-                titleLbl,
+                "Computer Player",
                 computerPlayerFinishedPiecesPnl,
-                computerPlayerReadyToGoPiecesPnl
+                computerPlayerReadyToGoPiecesPnl,
+                computerPlayerTurnIndicatorImg
         );
 
-        playerPnl.getChildren().addAll(piecesPnl, titleLbl);
+        playerPnl.getChildren().addAll(piecesPnl, titlePnl);
 
         return playerPnl;
     }
 
-    private void createPlayerPanel(
-            final VBox playerPnl,
+    private VBox createPlayerPanel(
+            final HBox titlePnl,
             final HBox piecesPnl,
-            final Label titleLbl,
+            final String title,
             final HBox finishedPiecesPnl,
-            final HBox readyToGoPiecesPnl) {
-
+            final HBox readyToGoPiecesPnl,
+            final ImageView turnIndicatorImg
+    ) {
+        VBox playerPnl = new VBox();
         playerPnl.setMinSize(500d, 90d);
         playerPnl.setMaxSize(500d, 90d);
         playerPnl.getStyleClass().add("border_down");
 
-        titleLbl.setMinSize(500d, 35d);
-        titleLbl.setMaxSize(500d, 35d);
-        titleLbl.setAlignment(Pos.CENTER);
+        titlePnl.setMinSize(500d, 35d);
+        titlePnl.setMaxSize(500d, 35d);
+
+        Label titleLbl = new Label(title);
+        titleLbl.setMinHeight(35d);
+        titleLbl.setMaxHeight(35d);
+        titleLbl.setAlignment(Pos.CENTER_LEFT);
+        titleLbl.getStyleClass().add("header");
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        String imgUrl = Objects.requireNonNull(
+                classLoader.getResource("img/green_light.png"),
+                "Accessing the light file unsuccessful."
+        ).toExternalForm();
+        turnIndicatorImg.setImage(new Image(imgUrl));
+
+        titlePnl.getChildren().addAll(titleLbl, turnIndicatorImg);
 
         piecesPnl.setMinSize(500d, 55d);
         piecesPnl.setMaxSize(500d, 55d);
@@ -190,6 +229,8 @@ public class BoardController extends GridPane {
         readyToGoPiecesPnl.setPadding(new Insets(5d, 5d, 10d, 5d));
 
         piecesPnl.getChildren().addAll(finishedPiecesLbl, finishedPiecesPnl, readyToGoPiecesLbl, readyToGoPiecesPnl);
+
+        return playerPnl;
     }
 
     public List<Piece> createPieces(Player player) {
@@ -222,11 +263,13 @@ public class BoardController extends GridPane {
         dicePnl.setMinSize(170d, 290d);
         dicePnl.setMaxSize(170d, 290d);
         dicePnl.getStyleClass().add("border_down_and_left");
+        dicePnl.setAlignment(Pos.TOP_CENTER);
 
         Label titleLbl = new Label("The Dice");
-        titleLbl.setMinSize(170d, 60d);
-        titleLbl.setMaxSize(170d, 60d);
-        titleLbl.setAlignment(Pos.CENTER);
+        titleLbl.setMinSize(170d, 35d);
+        titleLbl.setMaxSize(170d, 35d);
+        titleLbl.setAlignment(Pos.CENTER_LEFT);
+        titleLbl.getStyleClass().add("header");
 
         VBox diceImagePnl = new VBox();
         diceImagePnl.setMinSize(170d, 90d);
@@ -234,7 +277,10 @@ public class BoardController extends GridPane {
         diceImagePnl.setAlignment(Pos.CENTER);
 
         ClassLoader classLoader = BoardController.class.getClassLoader();
-        diceImg.setImage(new Image(classLoader.getResource("img/dice0.png").toExternalForm()));
+        diceImg.setImage(new Image(Objects.requireNonNull(
+                classLoader.getResource("img/dice0.png"),
+                "Accessing the dice image (0) unsuccessful."
+        ).toExternalForm()));
         diceImg.getStyleClass().add("dice");
         diceImagePnl.getChildren().add(diceImg);
 
@@ -244,11 +290,13 @@ public class BoardController extends GridPane {
         diceValuePnl.setAlignment(Pos.CENTER);
 
         diceRollResultTxt.setText("X");
+        diceRollResultTxt.getStyleClass().add("dice_result");
         diceValuePnl.getChildren().add(diceRollResultTxt);
 
         rollDiceBtn.setText("Roll the dice");
-        rollDiceBtn.setMinSize(170d, 40d);
-        rollDiceBtn.setMaxSize(170d, 40d);
+        rollDiceBtn.setMinSize(160d, 40d);
+        rollDiceBtn.setMaxSize(160d, 40d);
+        rollDiceBtn.setAlignment(Pos.CENTER);
 
         dicePnl.getChildren().addAll(titleLbl, diceImagePnl, diceValuePnl, rollDiceBtn);
         return dicePnl;
@@ -277,7 +325,7 @@ public class BoardController extends GridPane {
 
     public void setHumanPiecesMouseClickAction(EventHandler<? super MouseEvent> eventHandler) {
         for (Node node : humanPlayerReadyToGoPiecesPnl.getChildren()) {
-            ((Piece) node).setOnMouseClicked(eventHandler);
+            node.setOnMouseClicked(eventHandler);
         }
     }
 
@@ -292,8 +340,11 @@ public class BoardController extends GridPane {
         final KeyValue[] keyValues = new KeyValue[3];
         ClassLoader classLoader = BoardController.class.getClassLoader();
         for (int i = 0; i < keyValues.length; i++) {
-            keyValues[i] = new KeyValue(diceImg.imageProperty(),
-                    new Image(classLoader.getResource("img/dice" + i + ".png").toExternalForm()));
+            String imageUrl = Objects.requireNonNull(
+                    classLoader.getResource("img/dice" + i + ".png"),
+                    "Accessing the dice image (" + i + ") unsuccessful."
+            ).toExternalForm();
+            keyValues[i] = new KeyValue(diceImg.imageProperty(), new Image(imageUrl));
         }
 
         double step = DICE_ROLLING_ANIMATION_STEP;
@@ -308,10 +359,11 @@ public class BoardController extends GridPane {
 
     private void initMessageFadeOutTransition() {
         messageFadeOutTransition.setNode(messageTxt);
-        messageFadeOutTransition.setDuration(Duration.seconds(5));
+        messageFadeOutTransition.setDuration(Duration.millis(400));
         messageFadeOutTransition.setFromValue(1d);
-        messageFadeOutTransition.setByValue(1d);
-        messageFadeOutTransition.setToValue(0d);
+        messageFadeOutTransition.setToValue(0.3);
+        messageFadeOutTransition.setAutoReverse(true);
+        messageFadeOutTransition.setCycleCount(6);
     }
 
     public FadeTransition createPieceFadeOutTransition(Piece piece) {
@@ -355,7 +407,7 @@ public class BoardController extends GridPane {
     }
 
     /*
-    * Access to pieces containers
+    * Access to player containers
      */
     private HBox getFinishedPiecesBox(PieceColor color) {
         return color == PieceColor.DARK ? humanPlayerFinishedPiecesPnl : computerPlayerFinishedPiecesPnl;
@@ -363,6 +415,10 @@ public class BoardController extends GridPane {
 
     private HBox getReadyToGoPiecesBox(PieceColor color) {
         return color == PieceColor.DARK ? humanPlayerReadyToGoPiecesPnl : computerPlayerReadyToGoPiecesPnl;
+    }
+
+    private ImageView getTurnIndicatorImg(PieceColor color) {
+        return color == PieceColor.DARK ? humanPlayerTurnIndicatorImg : computerPlayerTurnIndicatorImg;
     }
 
     /*
@@ -437,6 +493,15 @@ public class BoardController extends GridPane {
     /*
     * Others
      */
+    public void setTurnIndicator(Player player, String light) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        String imgUrl = Objects.requireNonNull(
+                classLoader.getResource("img/" + light + "_light.png"),
+                "Accessing the light file unsuccessful."
+        ).toExternalForm();
+        getTurnIndicatorImg(player.getColor()).setImage(new Image(imgUrl));
+    }
+
     public void disableRollDiceButton() {
         rollDiceBtn.setDisable(true);
     }

@@ -1,7 +1,8 @@
 package com.kodilla.royal.game.of.ur;
 
-import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
+
+import static com.kodilla.royal.game.of.ur.BoardController.*;
 
 public class Game {
 
@@ -29,20 +30,36 @@ public class Game {
             }
         }
 
-        boardController = new BoardController();
+        boardController = new BoardController(this);
 
         currentPlayer = humanPlayer = new HumanPlayer(this, Route.SIMPLE_ROUTE, fields);
         canHumanPickPiece = false;
         computerPlayer = new ComputerPlayer(this, Route.SIMPLE_ROUTE, fields);
 
-        dice = new Dice(1);
+//        dice = new Dice();
+        dice = new Dice(3);
 
         boardController.setHumanPiecesMouseClickAction(this::handlePieceMouseClicked);
-        boardController.setRollDiceButtonAction(this::handleRollDiceButtonClick);
+        boardController.setRollDiceButtonAction(event -> handleRollDiceButtonClick());
 
-        // just testing...
-        humanPlayer.setPieceAtField(0, 14);
-//        computerPlayer.setPieceAtField(0, 14);
+        boardController.setTurnIndicator(humanPlayer, GREEN_LIGHT);
+        boardController.setTurnIndicator(computerPlayer, RED_LIGHT);
+
+//        capture test
+//        humanPlayer.setPieceAtField(0, 4);
+//        computerPlayer.setPieceAtField(0, 7);
+
+//        finish game test
+//        humanPlayer.setPieceAtField(0, 11);
+//        computerPlayer.setPieceAtField(0, 12);
+
+//        cant move test
+//        humanPlayer.setPieceAtField(0, 5);
+//        humanPlayer.setPieceAtField(1, 8);
+
+//        no moves available
+        humanPlayer.setPieceAtField(0, 5);
+        computerPlayer.setPieceAtField(0, 8);
     }
 
     public BoardController getBoardController() {
@@ -60,6 +77,7 @@ public class Game {
             } else {
                 if (piece.canMove(diceRollResult, humanPlayer.getRoute())) {
                     canHumanPickPiece = false;
+                    boardController.setTurnIndicator(humanPlayer, YELLOW_LIGHT);
                     boardController.clearMessage();
                     humanPlayer.movePiece(piece, diceRollResult);
                 } else {
@@ -69,15 +87,17 @@ public class Game {
         }
     }
 
-    private void handleRollDiceButtonClick(ActionEvent event) {
+    private void handleRollDiceButtonClick() {
         diceRollResult = dice.roll();
+        boardController.setTurnIndicator(humanPlayer, YELLOW_LIGHT);
         boardController.animateDice(diceRollResult, this::humanPlayerMoves);
     }
 
-    public void humanPlayerMoves() {
+    private void humanPlayerMoves() {
         if (diceRollResult > 0) {
             if (humanPlayer.hasPiecesToMove(diceRollResult)) {
                 canHumanPickPiece = true;
+                boardController.setTurnIndicator(humanPlayer, GREEN_LIGHT);
             } else {
                 showMessageNoPiecesToMove();
             }
@@ -104,19 +124,22 @@ public class Game {
     }
 
     public void nextTurn() {
+        boardController.setTurnIndicator(currentPlayer, RED_LIGHT);
         if (currentPlayer == humanPlayer) {
             currentPlayer = computerPlayer;
             diceRollResult = dice.roll();
+            boardController.setTurnIndicator(computerPlayer, YELLOW_LIGHT);
             boardController.animateDice(diceRollResult, this::computerPlayerMoves);
         } else {
             currentPlayer = humanPlayer;
             boardController.enableRollDiceButton();
             boardController.showMessage("Roll the dice.");
+            boardController.setTurnIndicator(currentPlayer, GREEN_LIGHT);
         }
         boardController.setTurnInfo(currentPlayer + "'s turn");
     }
 
-    public void finishGame(Player winner) {
+    public void finishGame() {
         boardController.showGameOverInfo(currentPlayer.toString());
     }
 
