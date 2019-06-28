@@ -4,22 +4,6 @@
     -fx-font-family: "Helvetica";
 }
 
-.border_down, .border_left, .border_down_and_left {
-    -fx-border-color: #24221c;
-}
-
-.border_down {
-    -fx-border-width: 0px 0px 1px 0px;
-}
-
-.border_left {
-    -fx-border-width: 0px 0px 0px 1px;
-}
-
-.border_down_and_left {
-    -fx-border-width: 0px 0px 1px 1px;
-}
-
 .board {
     -fx-background-image: url("../img/board.png");
     -fx-background-size: 480, 180;
@@ -56,6 +40,8 @@
 
 .message {
     -fx-fill: firebrick;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
 }
 
 .piece, .dice {
@@ -75,12 +61,12 @@
 }
 
 .header {
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-padding: 0px 15px 0px 15px;
 }
 
 .dice_result {
-    -fx-font-size: 36px;
+    -fx-font-size: 60px;
     -fx-font-weight: bold;
 }

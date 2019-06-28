@@ -17,7 +17,7 @@ public class ComputerPlayer extends Player {
     public Piece chooseBestMove(int howFar) {
         Comparator<Piece> pieceMoveComparator = Comparator.comparingInt(p -> p.getMovePriority(howFar, getRoute()));
         Queue<Piece> moves = new PriorityQueue<>(pieceMoveComparator);
-        for (Piece piece : pieces) {
+        for (Piece piece : getPieces()) {
             if (piece.isInGame() && piece.canMove(howFar, getRoute())) {
                 moves.add(piece);
             }

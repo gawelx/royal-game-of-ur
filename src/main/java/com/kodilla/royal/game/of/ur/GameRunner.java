@@ -14,8 +14,8 @@ public class GameRunner extends Application {
     public void start(Stage primaryStage) throws Exception {
         Game game = new Game();
         primaryStage.setTitle("The Royal Game Of Ur by Paweł Bandura");
-        primaryStage.setScene(new Scene(game.getBoardController(), 670, 420));
-        //primaryStage.setResizable(false);
+        primaryStage.setScene(new Scene(game.getBoardController(), 660, 410));
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 

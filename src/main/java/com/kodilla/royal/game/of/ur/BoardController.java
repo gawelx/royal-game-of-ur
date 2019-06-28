@@ -6,9 +6,9 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
+import javafx.scene.effect.Bloom;
+import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -22,25 +22,31 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.kodilla.royal.game.of.ur.Game.PIECES_COUNT;
 
 public class BoardController extends GridPane {
 
-    public final static String GREEN_LIGHT = "green";
-    public final static String RED_LIGHT = "red";
-    public final static String YELLOW_LIGHT = "yellow";
+    public static final String GREEN_LIGHT = "green";
+    public static final String RED_LIGHT = "red";
+    public static final String YELLOW_LIGHT = "yellow";
 
-    private final double DICE_ROLLING_ANIMATION_DURATION = 4000d;
-    private final double DICE_ROLLING_ANIMATION_STEP = 100d;
-    private final double DICE_ROLLING_ANIMATION_STEP_MODIFIER = 1.1d;
-    private final int FADE_TIME = 500;
+    public static final String GREEN_HIGHLIGHT = "green";
+    public static final String RED_HIGHLIGHT = "red";
 
-    private final Game game;
+    private static final double DICE_ROLLING_ANIMATION_DURATION = 4000d;
+    private static final double DICE_ROLLING_ANIMATION_STEP = 100d;
+    private static final double DICE_ROLLING_ANIMATION_STEP_MODIFIER = 1.1d;
+    private static final int FADE_TIME = 500;
+
+//    private final Game game;
+
+    private final Button newGameBtn;
+    private final Button instructionsBtn;
 
     private final ImageView diceImg;
     private final Text diceRollResultTxt;
-    private final Text turnInfoTxt;
     private final Text messageTxt;
     private final Button rollDiceBtn;
 
@@ -58,8 +64,19 @@ public class BoardController extends GridPane {
     private final FadeTransition messageFadeOutTransition;
     private final ImageView computerPlayerTurnIndicatorImg;
 
+    private final ImageView highlightField;
+    private Image greenFieldHighlight;
+    private Image redFieldHighlight;
+
+    private final ImageView highlightMeta;
+    private Image greenMetaHighlight;
+    private Image redMetaHighlight;
+
     public BoardController(final Game game) {
-        this.game = game;
+//        this.game = game;
+
+        this.newGameBtn = new Button();
+        this.instructionsBtn = new Button();
 
         this.humanPlayerFinishedPiecesPnl = new HBox();
         this.humanPlayerReadyToGoPiecesPnl = new HBox();
@@ -77,10 +94,11 @@ public class BoardController extends GridPane {
         this.rollDiceBtn = new Button();
         this.diceRollAnimation = new Timeline();
 
-        this.turnInfoTxt = new Text();
-
         this.messageTxt = new Text();
         this.messageFadeOutTransition = new FadeTransition();
+
+        this.highlightField = new ImageView();
+        this.highlightMeta = new ImageView();
 
         setMinSize(670d, 420d);
         setMaxSize(670d, 420d);
@@ -101,6 +119,7 @@ public class BoardController extends GridPane {
 
         initDiceRollingAnimation();
         initMessageFadeOutTransition();
+        initHighlights();
     }
 
     /*
@@ -111,13 +130,11 @@ public class BoardController extends GridPane {
         topBarPnl.setMinSize(670d, 40d);
         topBarPnl.setMaxSize(670d, 40d);
         topBarPnl.setPadding(new Insets(1));
-        topBarPnl.getStyleClass().add("border_down");
 
-        Button newGameBtn = new Button("N");
+        newGameBtn.setText("N");
         newGameBtn.setMinSize(38d, 38d);
         newGameBtn.setMaxSize(38d, 38d);
         newGameBtn.setAlignment(Pos.CENTER);
-//        newGameBtn.getStyleClass().add("button");
         newGameBtn.setTooltip(new Tooltip("New game"));
 
         Label titleLbl = new Label("The Royal Game Of Ur");
@@ -128,12 +145,13 @@ public class BoardController extends GridPane {
 
         titleLbl.setAlignment(Pos.CENTER);
 
-        Button helpBtn = new Button("?");
-        helpBtn.setMinSize(38d, 38d);
-        helpBtn.setMaxSize(38d, 38d);
-        helpBtn.setAlignment(Pos.CENTER);
+        instructionsBtn.setText("?");
+        instructionsBtn.setMinSize(38d, 38d);
+        instructionsBtn.setMaxSize(38d, 38d);
+        instructionsBtn.setAlignment(Pos.CENTER);
+        instructionsBtn.setTooltip(new Tooltip("Game instructions"));
 
-        topBarPnl.getChildren().addAll(newGameBtn, titleLbl, helpBtn);
+        topBarPnl.getChildren().addAll(newGameBtn, titleLbl, instructionsBtn);
         return topBarPnl;
     }
 
@@ -184,14 +202,13 @@ public class BoardController extends GridPane {
         VBox playerPnl = new VBox();
         playerPnl.setMinSize(500d, 90d);
         playerPnl.setMaxSize(500d, 90d);
-        playerPnl.getStyleClass().add("border_down");
 
         titlePnl.setMinSize(500d, 35d);
         titlePnl.setMaxSize(500d, 35d);
 
         Label titleLbl = new Label(title);
-        titleLbl.setMinHeight(35d);
-        titleLbl.setMaxHeight(35d);
+        titleLbl.setMinSize(465d, 35d);
+        titleLbl.setMaxSize(465d, 35d);
         titleLbl.setAlignment(Pos.CENTER_LEFT);
         titleLbl.getStyleClass().add("header");
 
@@ -250,7 +267,7 @@ public class BoardController extends GridPane {
 
         gameBoardPnl.setMinSize(500d, 200d);
         gameBoardPnl.setMaxSize(500d, 200d);
-        gameBoardPnl.getStyleClass().addAll("board", "border_down");
+        gameBoardPnl.getStyleClass().add("board");
         gameBoardPnl.setPadding(new Insets(10d));
 
         playPnl.getChildren().add(gameBoardPnl);
@@ -262,7 +279,6 @@ public class BoardController extends GridPane {
         VBox dicePnl = new VBox();
         dicePnl.setMinSize(170d, 290d);
         dicePnl.setMaxSize(170d, 290d);
-        dicePnl.getStyleClass().add("border_down_and_left");
         dicePnl.setAlignment(Pos.TOP_CENTER);
 
         Label titleLbl = new Label("The Dice");
@@ -272,8 +288,8 @@ public class BoardController extends GridPane {
         titleLbl.getStyleClass().add("header");
 
         VBox diceImagePnl = new VBox();
-        diceImagePnl.setMinSize(170d, 90d);
-        diceImagePnl.setMaxSize(170d, 90d);
+        diceImagePnl.setMinSize(170d, 100d);
+        diceImagePnl.setMaxSize(170d, 100d);
         diceImagePnl.setAlignment(Pos.CENTER);
 
         ClassLoader classLoader = BoardController.class.getClassLoader();
@@ -285,17 +301,18 @@ public class BoardController extends GridPane {
         diceImagePnl.getChildren().add(diceImg);
 
         VBox diceValuePnl = new VBox();
-        diceValuePnl.setMinSize(170d, 70d);
-        diceValuePnl.setMaxSize(170d, 70d);
-        diceValuePnl.setAlignment(Pos.CENTER);
+        diceValuePnl.setMinSize(170d, 100d);
+        diceValuePnl.setMaxSize(170d, 100d);
+        diceValuePnl.setPadding(new Insets(5d, 0d, 0d, 0d));
+        diceValuePnl.setAlignment(Pos.TOP_CENTER);
 
-        diceRollResultTxt.setText("X");
         diceRollResultTxt.getStyleClass().add("dice_result");
         diceValuePnl.getChildren().add(diceRollResultTxt);
 
         rollDiceBtn.setText("Roll the dice");
         rollDiceBtn.setMinSize(160d, 40d);
         rollDiceBtn.setMaxSize(160d, 40d);
+        rollDiceBtn.setDefaultButton(true);
         rollDiceBtn.setAlignment(Pos.CENTER);
 
         dicePnl.getChildren().addAll(titleLbl, diceImagePnl, diceValuePnl, rollDiceBtn);
@@ -307,19 +324,14 @@ public class BoardController extends GridPane {
         messagePnl.setMinSize(170d, 90d);
         messagePnl.setMaxSize(170d, 90d);
         messagePnl.setPadding(new Insets(5d));
-        messagePnl.getStyleClass().add("border_left");
-
-        turnInfoTxt.setText("Human Player's turn");
-        turnInfoTxt.setWrappingWidth(160d);
-        turnInfoTxt.setTextAlignment(TextAlignment.CENTER);
-        turnInfoTxt.getStyleClass().add("message");
+        messagePnl.setAlignment(Pos.CENTER);
 
         messageTxt.setText("Roll the dice to start the game.");
         messageTxt.setWrappingWidth(160d);
         messageTxt.setTextAlignment(TextAlignment.CENTER);
         messageTxt.getStyleClass().add("message");
 
-        messagePnl.getChildren().addAll(turnInfoTxt, messageTxt);
+        messagePnl.getChildren().add(messageTxt);
         return messagePnl;
     }
 
@@ -329,8 +341,28 @@ public class BoardController extends GridPane {
         }
     }
 
-    public void setRollDiceButtonAction(EventHandler<ActionEvent> eventEventHandler) {
-        rollDiceBtn.setOnAction(eventEventHandler);
+    public void setHumanPiecesMouseEnterAction(EventHandler<? super MouseEvent> eventHandler) {
+        for (Node node : humanPlayerReadyToGoPiecesPnl.getChildren()) {
+            node.setOnMouseEntered(eventHandler);
+        }
+    }
+
+    public void setHumanPiecesMouseExitAction(EventHandler<? super MouseEvent> eventHandler) {
+        for (Node node : humanPlayerReadyToGoPiecesPnl.getChildren()) {
+            node.setOnMouseExited(eventHandler);
+        }
+    }
+
+    public void setRollDiceButtonAction(EventHandler<ActionEvent> eventHandler) {
+        rollDiceBtn.setOnAction(eventHandler);
+    }
+
+    public void setNewGameButtonAction(EventHandler<ActionEvent> eventHandler) {
+        newGameBtn.setOnAction(eventHandler);
+    }
+
+    public void setInstructionsButtonAction(EventHandler<ActionEvent> eventHandler) {
+        instructionsBtn.setOnAction(eventHandler);
     }
 
     /*
@@ -363,7 +395,47 @@ public class BoardController extends GridPane {
         messageFadeOutTransition.setFromValue(1d);
         messageFadeOutTransition.setToValue(0.3);
         messageFadeOutTransition.setAutoReverse(true);
-        messageFadeOutTransition.setCycleCount(6);
+        messageFadeOutTransition.setCycleCount(10);
+    }
+
+    private void initHighlights() {
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        BoxBlur blur = new BoxBlur(3d, 3d, 2);
+        Bloom bloom = new Bloom();
+        bloom.setInput(blur);
+        highlightField.setEffect(bloom);
+        highlightMeta.setEffect(bloom);
+
+        AnchorPane.setLeftAnchor(highlightMeta, 120d);
+        AnchorPane.setTopAnchor(highlightMeta, 0d);
+        highlightMeta.setVisible(false);
+        highlightMeta.setOpacity(0.4);
+        gameBoardPnl.getChildren().add(highlightMeta);
+
+        String imgUrl = Objects.requireNonNull(
+                classLoader.getResource("img/highlight_field_green.png"),
+                "Accessing the green highlightField file unsuccessful."
+        ).toExternalForm();
+        greenFieldHighlight = new Image(imgUrl);
+
+        imgUrl = Objects.requireNonNull(
+                classLoader.getResource("img/highlight_field_red.png"),
+                "Accessing the red highlightField file unsuccessful."
+        ).toExternalForm();
+        redFieldHighlight = new Image(imgUrl);
+
+        imgUrl = Objects.requireNonNull(
+                classLoader.getResource("img/highlight_meta_green.png"),
+                "Accessing the green highlightMeta file unsuccessful."
+        ).toExternalForm();
+        greenMetaHighlight = new Image(imgUrl);
+
+        imgUrl = Objects.requireNonNull(
+                classLoader.getResource("img/highlight_meta_red.png"),
+                "Accessing the red highlightMeta file unsuccessful."
+        ).toExternalForm();
+        redMetaHighlight = new Image(imgUrl);
     }
 
     public FadeTransition createPieceFadeOutTransition(Piece piece) {
@@ -434,6 +506,10 @@ public class BoardController extends GridPane {
         }
     }
 
+    public void clearDiceRollResult() {
+        diceRollResultTxt.setText("");
+    }
+
     public void showMessage(String message) {
         messageTxt.setOpacity(1d);
         messageTxt.setText(message);
@@ -455,10 +531,6 @@ public class BoardController extends GridPane {
 
     public void clearMessage() {
         showMessage("");
-    }
-
-    public void setTurnInfo(String info) {
-        turnInfoTxt.setText(info);
     }
 
     public void showGameOverInfo(String winner) {
@@ -486,7 +558,6 @@ public class BoardController extends GridPane {
         transition.play();
 
         gameBoardPnl.setOpacity(0.4);
-        turnInfoTxt.setText("");
         playPnl.getChildren().add(gameOverPnl);
     }
 
@@ -502,12 +573,14 @@ public class BoardController extends GridPane {
         getTurnIndicatorImg(player.getColor()).setImage(new Image(imgUrl));
     }
 
-    public void disableRollDiceButton() {
+    public void disableButtons() {
         rollDiceBtn.setDisable(true);
+        newGameBtn.setDisable(true);
     }
 
-    public void enableRollDiceButton() {
+    public void enableButtons() {
         rollDiceBtn.setDisable(false);
+        newGameBtn.setDisable(false);
     }
 
     private void addPieceToReadyToGoBox(Piece piece) {
@@ -515,7 +588,7 @@ public class BoardController extends GridPane {
     }
 
     public void animateDice(int diceRollResult, Runnable afterDiceRollAction) {
-        disableRollDiceButton();
+        disableButtons();
         showMessage("The dice is rolling...");
         diceRollResultTxt.setText("");
         diceRollAnimation.setOnFinished(event -> showDiceRollResult(diceRollResult, afterDiceRollAction));
@@ -530,11 +603,20 @@ public class BoardController extends GridPane {
         gameBoardPnl.getChildren().add(piece);
     }
 
-    public void putPieceBackToReadyToGoBox(Piece piece) {
-        gameBoardPnl.getChildren().remove(piece);
+    private void putPieceInReadyToGoBox(Piece piece) {
         piece.setTranslateX(0d);
         piece.setTranslateY(0d);
         getReadyToGoPiecesBox(piece.getColor()).getChildren().add(piece);
+    }
+
+    public void movePieceFromBoardToReadyToGoBox(Piece piece) {
+        gameBoardPnl.getChildren().remove(piece);
+        putPieceInReadyToGoBox(piece);
+    }
+
+    private void movePieceFromFinishedToReadyToGoBox(Piece piece) {
+        getFinishedPiecesBox(piece.getColor()).getChildren().remove(piece);
+        putPieceInReadyToGoBox(piece);
     }
 
     public void putPieceInFinishedPiecesBox(Piece piece) {
@@ -542,6 +624,44 @@ public class BoardController extends GridPane {
         piece.setTranslateX(0d);
         piece.setTranslateY(0d);
         getFinishedPiecesBox(piece.getColor()).getChildren().add(piece);
+    }
+
+    public void resetPiece(Piece piece) {
+        if (piece.getFieldNo() > 0) {
+            if (piece.isInGame()) {
+                movePieceFromBoardToReadyToGoBox(piece);
+            } else {
+                movePieceFromFinishedToReadyToGoBox(piece);
+            }
+        }
+    }
+
+    public boolean showConfirmationDialog(String message) {
+        Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION, message, ButtonType.YES, ButtonType.NO);
+        Optional<ButtonType> response = confirmationDialog.showAndWait();
+        return response.map(buttonType -> buttonType.equals(ButtonType.YES)).orElse(false);
+    }
+
+    public void highlightField(Field field, String highlightColor) {
+        Image highlightImg = highlightColor.equals(GREEN_HIGHLIGHT) ? greenFieldHighlight : redFieldHighlight;
+        highlightField.setImage(highlightImg);
+        AnchorPane.setLeftAnchor(highlightField, field.getColumn() * 60d);
+        AnchorPane.setTopAnchor(highlightField, field.getRow() * 60d);
+        gameBoardPnl.getChildren().add(highlightField);
+    }
+
+    public void removeHighlightFromField() {
+        gameBoardPnl.getChildren().remove(highlightField);
+    }
+
+    public void highlightMeta(String highlightColor) {
+        Image highlightImg = highlightColor.equals(GREEN_HIGHLIGHT) ? greenMetaHighlight : redMetaHighlight;
+        highlightMeta.setImage(highlightImg);
+        highlightMeta.setVisible(true);
+    }
+
+    public void removeHighlightFromMeta() {
+        highlightMeta.setVisible(false);
     }
 
 }

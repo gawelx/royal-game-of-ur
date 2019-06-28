@@ -9,7 +9,7 @@ import java.util.List;
 public abstract class Player {
 
     private final PieceColor color;
-    protected final List<Piece> pieces;
+    private final List<Piece> pieces;
     private final List<Field> route;
     private final Game game;
 
@@ -26,6 +26,10 @@ public abstract class Player {
 
     public PieceColor getColor() {
         return color;
+    }
+
+    public List<Piece> getPieces() {
+        return pieces;
     }
 
     public List<Field> getRoute() {
@@ -84,7 +88,7 @@ public abstract class Player {
     }
 
     private void returnCapturedPieceToStartAndFadeIn(Piece piece) {
-        game.getBoardController().putPieceBackToReadyToGoBox(piece);
+        game.getBoardController().movePieceFromBoardToReadyToGoBox(piece);
         piece.returnToStart();
 
         FadeTransition transition = game.getBoardController().createPieceFadeInTransition(piece);

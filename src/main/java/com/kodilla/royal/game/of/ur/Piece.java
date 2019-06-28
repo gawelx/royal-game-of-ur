@@ -128,4 +128,13 @@ public class Piece extends ImageView {
         return this.color != piece.color;
     }
 
+    public void reset() {
+        fieldNo = 0;
+        inGame = true;
+    }
+
+    public Field getField(List<Field> route) {
+        return route.get(fieldNo);
+    }
+
 }
