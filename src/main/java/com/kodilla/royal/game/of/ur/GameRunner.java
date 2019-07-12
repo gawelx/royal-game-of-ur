@@ -1,9 +1,8 @@
 package com.kodilla.royal.game.of.ur;
 
 import javafx.application.Application;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.io.IOException;
 
 public class GameRunner extends Application {
 
@@ -12,10 +11,12 @@ public class GameRunner extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
-        Board boardController = new Board();
+    public void start(Stage primaryStage) throws Exception {
+        Game game = new Game();
         primaryStage.setTitle("The Royal Game Of Ur by Paweł Bandura");
-        primaryStage.setScene(boardController.getScene());
+        primaryStage.setScene(new Scene(game.getBoardController(), 660, 410));
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
+
 }

@@ -1,6 +1,7 @@
 .root {
     -fx-background-image: url("../img/wood.jpg");
     -fx-background-size: cover, cover;
+    -fx-font-family: "Helvetica";
 }
 
 .board {
@@ -10,6 +11,62 @@
     -fx-background-position: center;
 }
 
-#message {
+.button {
+    -fx-background-color:
+            linear-gradient(#6c6753 0%, #24221c 25%, #484537 75%, #918a6f 100%),
+            linear-gradient(#141310, #2b291a),
+            linear-gradient(#aca793 0%, #918a6f 20%, #484537 80%, #24221c 100%),
+            linear-gradient(#918a6f 0%, #6c6753 20%, #484537 80%, #24221c 100%),
+            linear-gradient(#918a6f 0%, #6c6753 50%, #484537 51%, #24221c 100%);
+    -fx-background-insets: 0,1,4,5,6;
+    -fx-background-radius: 9,8,5,4,3;
+    -fx-font-family: "Helvetica";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e3e2db;
+    -fx-effect: dropshadow( three-pass-box , rgba(255,255,255,0.2) , 1, 0.0 , 0 , 1);
+}
+
+.button:hover {
+    -fx-background-color:
+            linear-gradient(#938d7c 0%, #211b0b 25%, #231f13 75%, #5a574d 100%),
+            linear-gradient(#141310, #2b291a),
+            linear-gradient(#aca793 0%, #918a6f 20%, #484537 80%, #24221c 100%),
+            linear-gradient(#918a6f 0%, #6c6753 20%, #484537 80%, #24221c 100%),
+            linear-gradient(#918a6f 0%, #6c6753 50%, #484537 51%, #24221c 100%);
+    -fx-background-insets: 0,1,4,5,6;
+    -fx-background-radius: 9,8,5,4,3;
+}
+
+.message {
+    -fx-fill: firebrick;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.piece, .dice {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 4.0, 0.0, 6.0, 4.0);
+}
+
+.game_over {
     -fx-text-fill: firebrick;
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+}
+
+.title {
+    -fx-font-family: "Matura MT Script Capitals";
+    -fx-font-size: 24px;
+    -fx-padding: -15px 0px 0px 0px;
+}
+
+.header {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 0px 15px 0px 15px;
+}
+
+.dice_result {
+    -fx-font-size: 60px;
+    -fx-font-weight: bold;
 }
