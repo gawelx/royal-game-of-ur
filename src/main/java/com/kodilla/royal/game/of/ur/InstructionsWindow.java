@@ -8,13 +8,11 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class InstructionsWindow extends Stage {
-
-    public static final List<String> TAGS = Arrays.asList("title", "p");
 
     private VBox instructionsBox;
 

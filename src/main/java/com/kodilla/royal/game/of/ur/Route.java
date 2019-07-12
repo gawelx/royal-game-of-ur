@@ -20,7 +20,7 @@ public class Route {
         }
     }
 
-    private static List<Field> getSimpleRoute(PieceColor color, Field[][] fields) throws Exception {
+    private static List<Field> getSimpleRoute(PieceColor color, Field[][] fields) {
         Field[] route = new Field[15];
         int playerRowNo = color == PieceColor.DARK ? 0 : 2;
         System.arraycopy(fields[playerRowNo], 4, route, 1, 4);

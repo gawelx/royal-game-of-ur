@@ -66,11 +66,7 @@ public class Piece extends ImageView {
     }
 
     private boolean canCapture(int howFar, List<Field> route) {
-//        return canMove(howFar, route) && route.get(fieldNo + howFar).canBeCapturedBy(this);
         if (canMove(howFar, route) && fieldNo + howFar < route.size()) {
-//            if (fieldNo + howFar == route.size()) {
-//                return false;
-//            }
             return route.get(fieldNo + howFar).canBeCapturedBy(this);
         }
         return false;
@@ -90,7 +86,6 @@ public class Piece extends ImageView {
     }
 
     private boolean willBeSafeAfterMove(int howFar, List<Field> route) {
-//        return canMove(howFar, route) && !route.get(fieldNo + howFar).isCaptureAllowed();
         if (canMove(howFar, route)) {
             if (fieldNo + howFar < route.size()){
                 return !route.get(fieldNo + howFar).isCaptureAllowed();

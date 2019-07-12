@@ -1,6 +1,7 @@
 package com.kodilla.royal.game.of.ur;
 
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -14,7 +15,7 @@ public class ComputerPlayer extends Player {
         super(PieceColor.LIGHT, game, routeType, fields);
     }
 
-    public Piece chooseBestMove(int howFar) {
+    public Optional<Piece> chooseBestMove(int howFar) {
         Comparator<Piece> pieceMoveComparator = Comparator.comparingInt(p -> p.getMovePriority(howFar, getRoute()));
         Queue<Piece> moves = new PriorityQueue<>(pieceMoveComparator);
         for (Piece piece : getPieces()) {
@@ -23,7 +24,7 @@ public class ComputerPlayer extends Player {
             }
         }
 
-        return moves.size() == 0 ? null : moves.peek();
+        return moves.size() == 0 ? Optional.empty() : Optional.of(moves.peek());
     }
 
     @Override

@@ -40,66 +40,41 @@ public class BoardController extends GridPane {
     private static final double DICE_ROLLING_ANIMATION_STEP_MODIFIER = 1.1d;
     private static final int FADE_TIME = 500;
 
-//    private final Game game;
+    private final Button newGameBtn = new Button();
+    private final Button instructionsBtn = new Button();
 
-    private final Button newGameBtn;
-    private final Button instructionsBtn;
+    private final ImageView diceImg = new ImageView();
+    private final Text diceRollResultTxt = new Text();
+    private final Text messageTxt = new Text();
+    private final Button rollDiceBtn = new Button();
 
-    private final ImageView diceImg;
-    private final Text diceRollResultTxt;
-    private final Text messageTxt;
-    private final Button rollDiceBtn;
+    private final StackPane playPnl = new StackPane();
+    private final AnchorPane gameBoardPnl = new AnchorPane();
 
-    private final StackPane playPnl;
-    private final AnchorPane gameBoardPnl;
+    private final HBox humanPlayerFinishedPiecesPnl = new HBox();
+    private final HBox humanPlayerReadyToGoPiecesPnl = new HBox();
+    private final ImageView humanPlayerTurnIndicatorImg = new ImageView();
 
-    private final HBox humanPlayerFinishedPiecesPnl;
-    private final HBox humanPlayerReadyToGoPiecesPnl;
-    private final ImageView humanPlayerTurnIndicatorImg;
+    private final HBox computerPlayerFinishedPiecesPnl = new HBox();
+    private final HBox computerPlayerReadyToGoPiecesPnl = new HBox();
+    private final ImageView computerPlayerTurnIndicatorImg = new ImageView();
 
-    private final HBox computerPlayerFinishedPiecesPnl;
-    private final HBox computerPlayerReadyToGoPiecesPnl;
+    private final Timeline diceRollAnimation = new Timeline();
+    private final FadeTransition messageFadeOutTransition = new FadeTransition();
+    private final FadeTransition gameOverPanelFadeTransition = new FadeTransition();
 
-    private final Timeline diceRollAnimation;
-    private final FadeTransition messageFadeOutTransition;
-    private final ImageView computerPlayerTurnIndicatorImg;
+    private final ImageView highlightField = new ImageView();
+    private final ImageView highlightMeta = new ImageView();
 
-    private final ImageView highlightField;
+    private final VBox gameOverPnl = new VBox();
+    private final Label winnerLbl = new Label();
+
     private Image greenFieldHighlight;
     private Image redFieldHighlight;
-
-    private final ImageView highlightMeta;
     private Image greenMetaHighlight;
     private Image redMetaHighlight;
 
-    public BoardController(final Game game) {
-//        this.game = game;
-
-        this.newGameBtn = new Button();
-        this.instructionsBtn = new Button();
-
-        this.humanPlayerFinishedPiecesPnl = new HBox();
-        this.humanPlayerReadyToGoPiecesPnl = new HBox();
-        this.humanPlayerTurnIndicatorImg = new ImageView();
-
-        this.playPnl = new StackPane();
-        this.gameBoardPnl = new AnchorPane();
-
-        this.computerPlayerFinishedPiecesPnl = new HBox();
-        this.computerPlayerReadyToGoPiecesPnl = new HBox();
-        this.computerPlayerTurnIndicatorImg = new ImageView();
-
-        this.diceImg = new ImageView();
-        this.diceRollResultTxt = new Text();
-        this.rollDiceBtn = new Button();
-        this.diceRollAnimation = new Timeline();
-
-        this.messageTxt = new Text();
-        this.messageFadeOutTransition = new FadeTransition();
-
-        this.highlightField = new ImageView();
-        this.highlightMeta = new ImageView();
-
+    public BoardController() {
         setMinSize(670d, 420d);
         setMaxSize(670d, 420d);
         getStyleClass().add("root");
@@ -120,6 +95,7 @@ public class BoardController extends GridPane {
         initDiceRollingAnimation();
         initMessageFadeOutTransition();
         initHighlights();
+        initGameOverInfo();
     }
 
     /*
@@ -365,6 +341,33 @@ public class BoardController extends GridPane {
         instructionsBtn.setOnAction(eventHandler);
     }
 
+    private void initGameOverInfo() {
+        Label gameOverLbl = new Label("GAME OVER!");
+        gameOverLbl.setMinSize(500d, 70d);
+        gameOverLbl.setMaxSize(500d, 70d);
+        gameOverLbl.getStyleClass().add("game_over");
+        gameOverLbl.setAlignment(Pos.CENTER);
+
+        winnerLbl.setMinSize(500d, 130d);
+        winnerLbl.setMaxSize(500d, 130d);
+        winnerLbl.getStyleClass().add("game_over");
+        winnerLbl.setAlignment(Pos.CENTER);
+        winnerLbl.setTextAlignment(TextAlignment.CENTER);
+
+        gameOverPanelFadeTransition.setDuration(Duration.millis(750));
+        gameOverPanelFadeTransition.setNode(gameOverPnl);
+        gameOverPanelFadeTransition.setFromValue(1d);
+        gameOverPanelFadeTransition.setToValue(0.7);
+        gameOverPanelFadeTransition.setAutoReverse(true);
+        gameOverPanelFadeTransition.setCycleCount(Transition.INDEFINITE);
+        gameOverPanelFadeTransition.play();
+
+        gameOverPnl.getChildren().addAll(gameOverLbl, winnerLbl);
+        gameOverPnl.setVisible(false);
+
+        playPnl.getChildren().add(gameOverPnl);
+    }
+
     /*
      * Creating transitions and animations
      */
@@ -534,31 +537,17 @@ public class BoardController extends GridPane {
     }
 
     public void showGameOverInfo(String winner) {
-        VBox gameOverPnl = new VBox();
-
-        Label gameOverLbl = new Label("GAME OVER!");
-        gameOverLbl.setMinSize(500d, 70d);
-        gameOverLbl.setMaxSize(500d, 70d);
-        gameOverLbl.getStyleClass().add("game_over");
-        gameOverLbl.setAlignment(Pos.CENTER);
-
-        Label winnerLbl = new Label(winner + "\nis the winner!");
-        winnerLbl.setMinSize(500d, 130d);
-        winnerLbl.setMaxSize(500d, 130d);
-        winnerLbl.getStyleClass().add("game_over");
-        winnerLbl.setAlignment(Pos.CENTER);
-        winnerLbl.setTextAlignment(TextAlignment.CENTER);
-
-        gameOverPnl.getChildren().addAll(gameOverLbl, winnerLbl);
-        FadeTransition transition = new FadeTransition(Duration.millis(750), gameOverPnl);
-        transition.setFromValue(1d);
-        transition.setToValue(0.7);
-        transition.setAutoReverse(true);
-        transition.setCycleCount(Transition.INDEFINITE);
-        transition.play();
-
+        winnerLbl.setText(winner + "\nis the winner!");
         gameBoardPnl.setOpacity(0.4);
-        playPnl.getChildren().add(gameOverPnl);
+        gameOverPnl.setVisible(true);
+        gameOverPanelFadeTransition.play();
+        newGameBtn.setDisable(false);
+    }
+
+    public void hideGameOverInfo() {
+        gameOverPanelFadeTransition.stop();
+        gameOverPnl.setVisible(false);
+        gameBoardPnl.setOpacity(1d);
     }
 
     /*
@@ -573,7 +562,7 @@ public class BoardController extends GridPane {
         getTurnIndicatorImg(player.getColor()).setImage(new Image(imgUrl));
     }
 
-    public void disableButtons() {
+    private void disableButtons() {
         rollDiceBtn.setDisable(true);
         newGameBtn.setDisable(true);
     }
